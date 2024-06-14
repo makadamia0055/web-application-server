@@ -2,7 +2,7 @@ package webserver;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.Optional;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,10 +32,18 @@ public class RequestHandler extends Thread {
 
             DataOutputStream dos = new DataOutputStream(out);
             // 커넥션에서 가져온 아웃풋 스트림으로 DataOutputStream 선언
-            byte[] body = "".getBytes();
-            if(httpRequestClass.getUrl().equals("/index.html")){
-                body = "Hello World".getBytes();
-            }
+
+            // urlMapper 생성(이후 필드로 옮기기)
+            // 서버 init 작업하면서 매핑 정보 자동 입력할 수 있도록.
+            Map<String, String> urlMapper = new HashMap<>();
+            urlMapper.put("/index.html", "Hello World");
+
+            // urlMapper에서 매핑되는 url을 찾고 없으면 디폴트 값 전달
+            String bodyString = urlMapper.getOrDefault(httpRequestClass.getUrl(), "default String");
+
+            // 전달 받은 bodyString 변환
+            byte[] body = bodyString.getBytes();
+
 
              // HTTP의 body에 전달할 텍스트 선언
             response200Header(dos, body.length); // HTTP에 맞는 헤더 설정하는 메서드 호출
