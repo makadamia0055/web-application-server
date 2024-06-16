@@ -24,6 +24,7 @@ public class HandlerMapper {
         resourcePathList.add("js");
         resourcePathList.add("fonts");
         resourcePathList.add("images");
+        resourcePathList.add("favicon.ico");
     }
 
     private void addViewPath(){
@@ -35,14 +36,19 @@ public class HandlerMapper {
     }
 
     public Optional<String> getMapping(String url){
+        String parsedUrl = url.replaceFirst("http://localhost:8080", "");
+        if(parsedUrl.endsWith(".html")){
+            return Optional.ofNullable(parsedUrl.replaceFirst("/", ""));
+        }
+
         for(String str : resourcePathList){
-            if(url.startsWith("/"+str)){
-                String rst = url.replaceFirst("/", "").toString();
+            if(parsedUrl.startsWith("/"+str)){
+                String rst = parsedUrl.replaceFirst("/", "").toString();
                 return Optional.of(rst);
             }
         }
 
-        return Optional.ofNullable(urlMapper.get(url));
+        return Optional.ofNullable(urlMapper.get(parsedUrl));
     }
 
 }

@@ -39,10 +39,9 @@ public class RequestHandler extends Thread {
             HandlerMapper handlerMapper = HandlerMapper.getInstance();
             log.info(httpRequestClass.getUrl());
 
-            String parsedUrl = httpRequestClass.getUrl().replaceFirst("http://localhost:8080", "");
 
             // urlMapper에서 매핑되는 url을 찾고 없으면 디폴트 값 전달
-            String mappedTemplate = handlerMapper.getMapping(parsedUrl).orElseThrow();
+            String mappedTemplate = handlerMapper.getMapping(httpRequestClass.getUrl()).orElseThrow();
 
             ClasspathFileReader classpathFileReader = new ClasspathFileReader(mappedTemplate);
 
