@@ -40,6 +40,8 @@ public class RequestHandler extends Thread {
             urlMapper.put("index.html", "index.html");
             urlMapper.put("/css/styles.css", "css/styles.css");
             urlMapper.put("/js/scripts.js", "js/scripts.js");
+            urlMapper.put("/js/jquery-2.2.0.min.js", "js/jquery-2.2.0.min.js");
+            urlMapper.put("/js/bootstrap.min.js", "js/bootstrap.min.js");
 
             // urlMapper에서 매핑되는 url을 찾고 없으면 디폴트 값 전달
             String mappedTemplate = urlMapper.getOrDefault(httpRequestClass.getUrl(), "index.html");
@@ -62,21 +64,16 @@ public class RequestHandler extends Thread {
     }
 
     private static Optional<HttpRequestClass> extracted(BufferedReader br) throws IOException {
-        StringBuffer sb = new StringBuffer();
-
-        String line = br.readLine();
-        HttpRequestClass header = new HttpRequestClass(line);
-
-        while(!"".equals(line)){
-            line = br.readLine();
-            if(line==null){
+        try{
+            String httpHeader = br.readLine();
+            if(httpHeader == null|| httpHeader.isEmpty()){
                 return Optional.empty();
             }
-            log.info(line);
-            sb.append(line);
-
+            return Optional.of(new HttpRequestClass(httpHeader));
+        }catch (IOException e){
+            e.printStackTrace();
+            return Optional.empty();
         }
-        return Optional.ofNullable(header);
 
 
     }

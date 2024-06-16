@@ -11,8 +11,7 @@ public class HttpRequestClass {
 
     public HttpRequestClass(String httpHeader){
         StringTokenizer st = new StringTokenizer(httpHeader);
-        st.nextToken();
-        this.method = HttpMethod.GET;
+        this.method = HttpMethod.valueOf(st.nextToken());
         this.url = st.nextToken();
         this.httpVersion = st.nextToken();
 
