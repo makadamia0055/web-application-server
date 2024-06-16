@@ -47,14 +47,17 @@ public class RequestHandler extends Thread {
             ClasspathFileReader classpathFileReader = new ClasspathFileReader(mappedTemplate);
 
             // 전달 받은 bodyString 변환
-            byte[] body = classpathFileReader.readFile().getBytes();
+            byte[] body = classpathFileReader.readFile();
+            if(body == null){
+                sendErrorResponse(dos, 404, "Not Found");
+                return ;
+            }
 
+            String contentType = getContentType(mappedTemplate);
+            sendResponse(dos, 200, contentType, body);
 
-             // HTTP의 body에 전달할 텍스트 선언
-            response200Header(dos, body.length); // HTTP에 맞는 헤더 설정하는 메서드 호출
-            responseBody(dos, body); // 위 response200Header에 설정한 길이 만큼의 body byte를 출력 스트림으로 내보냄
         } catch (IOException e) {
-            log.error(e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -77,8 +80,34 @@ public class RequestHandler extends Thread {
 
 
     }
+    private void sendErrorResponse(DataOutputStream dos, int statusCode, String message) throws IOException{
+        byte[] body = message.getBytes();
+        sendResponse(dos, statusCode, "text/plain", body);
+    }
+    private String getContentType(String fileName){
+        if(fileName.endsWith(".html")){
+            return "text/html";
+        } else if (fileName.endsWith(".css")) {
+            return "text/css";
+        } else if (fileName.endsWith(".js")) {
+            return "application/javascript";
 
-    private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
+        }
+        // 다른 Content-type 추가 가능
+        return "application/octet-stream";
+    }
+
+    private void sendResponse(DataOutputStream dos, int statusCode, String contentType, byte[] body) throws IOException{
+        dos.writeBytes("HTTP/1.1" + statusCode + " \r\n");
+        dos.writeBytes("Content-Type: " + contentType + ";charset=utf-8\r\n");
+        dos.writeBytes("Content-length: " + body.length + "\r\n");
+        dos.writeBytes("\r\n");
+        dos.write(body);
+        dos.flush();
+    }
+
+
+  /*  private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
         try {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
             dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
@@ -87,14 +116,14 @@ public class RequestHandler extends Thread {
         } catch (IOException e) {
             log.error(e.getMessage());
         }
-    }
+    }*/
 
-    private void responseBody(DataOutputStream dos, byte[] body) {
+    /*private void responseBody(DataOutputStream dos, byte[] body) {
         try {
             dos.write(body, 0, body.length);
             dos.flush();
         } catch (IOException e) {
             log.error(e.getMessage());
         }
-    }
+    }*/
 }
