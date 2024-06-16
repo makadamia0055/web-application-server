@@ -6,6 +6,7 @@ import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.ClasspathFileReader;
 import util.utilClass.HttpRequestClass;
 
 import javax.swing.text.html.Option;
@@ -36,13 +37,17 @@ public class RequestHandler extends Thread {
             // urlMapper 생성(이후 필드로 옮기기)
             // 서버 init 작업하면서 매핑 정보 자동 입력할 수 있도록.
             Map<String, String> urlMapper = new HashMap<>();
-            urlMapper.put("/index.html", "Hello World");
+            urlMapper.put("index.html", "index.html");
+            urlMapper.put("/css/styles.css", "css/styles.css");
+            urlMapper.put("/js/scripts.js", "js/scripts.js");
 
             // urlMapper에서 매핑되는 url을 찾고 없으면 디폴트 값 전달
-            String bodyString = urlMapper.getOrDefault(httpRequestClass.getUrl(), "default String");
+            String mappedTemplate = urlMapper.getOrDefault(httpRequestClass.getUrl(), "index.html");
+
+            ClasspathFileReader classpathFileReader = new ClasspathFileReader(mappedTemplate);
 
             // 전달 받은 bodyString 변환
-            byte[] body = bodyString.getBytes();
+            byte[] body = classpathFileReader.readFile().getBytes();
 
 
              // HTTP의 body에 전달할 텍스트 선언
