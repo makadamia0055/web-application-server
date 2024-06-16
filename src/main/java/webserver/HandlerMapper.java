@@ -1,6 +1,9 @@
 package webserver;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class HandlerMapper {
 
@@ -20,15 +23,20 @@ public class HandlerMapper {
     }
 
     private void addResourcePath() {
-        resourcePathList.add("css");
-        resourcePathList.add("js");
-        resourcePathList.add("fonts");
-        resourcePathList.add("images");
-        resourcePathList.add("favicon.ico");
+
+        String rootContext = System.getProperty("user.dir")+"/target/classes";
+
+        File file = new File(rootContext);
+        String[] direcotries = file.list();
+        if(direcotries!=null){
+            resourcePathList.addAll(Arrays.stream(direcotries).collect(Collectors.toList()));
+
+        }
+
     }
 
     private void addViewPath(){
-        urlMapper.put("/index.html", "index.html");
+
     }
 
     public static HandlerMapper getInstance(){
@@ -36,15 +44,12 @@ public class HandlerMapper {
     }
 
     public Optional<String> getMapping(String url){
-        String parsedUrl = url.replaceFirst("http://localhost:8080", "");
-        if(parsedUrl.endsWith(".html")){
-            return Optional.ofNullable(parsedUrl.replaceFirst("/", ""));
-        }
+        String parsedUrl = url.replaceFirst("/", "");
+
 
         for(String str : resourcePathList){
-            if(parsedUrl.startsWith("/"+str)){
-                String rst = parsedUrl.replaceFirst("/", "").toString();
-                return Optional.of(rst);
+            if(parsedUrl.startsWith(str)){
+                return Optional.of(parsedUrl);
             }
         }
 
