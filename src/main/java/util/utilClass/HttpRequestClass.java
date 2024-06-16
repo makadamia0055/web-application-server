@@ -1,8 +1,15 @@
 package util.utilClass;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import webserver.RequestHandler;
+
 import java.util.StringTokenizer;
 
 public class HttpRequestClass {
+
+    private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
+
     private HttpMethod method;
 
     private String url;

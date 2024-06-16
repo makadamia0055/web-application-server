@@ -36,15 +36,13 @@ public class RequestHandler extends Thread {
 
             // urlMapper 생성(이후 필드로 옮기기)
             // 서버 init 작업하면서 매핑 정보 자동 입력할 수 있도록.
-            Map<String, String> urlMapper = new HashMap<>();
-            urlMapper.put("index.html", "index.html");
-            urlMapper.put("/css/styles.css", "css/styles.css");
-            urlMapper.put("/js/scripts.js", "js/scripts.js");
-            urlMapper.put("/js/jquery-2.2.0.min.js", "js/jquery-2.2.0.min.js");
-            urlMapper.put("/js/bootstrap.min.js", "js/bootstrap.min.js");
+            HandlerMapper handlerMapper = HandlerMapper.getInstance();
+            log.info(httpRequestClass.getUrl());
+
+            String parsedUrl = httpRequestClass.getUrl().replaceFirst("http://localhost:8080", "");
 
             // urlMapper에서 매핑되는 url을 찾고 없으면 디폴트 값 전달
-            String mappedTemplate = urlMapper.getOrDefault(httpRequestClass.getUrl(), "index.html");
+            String mappedTemplate = handlerMapper.getMapping(parsedUrl).orElseThrow();
 
             ClasspathFileReader classpathFileReader = new ClasspathFileReader(mappedTemplate);
 
