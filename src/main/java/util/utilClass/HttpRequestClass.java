@@ -13,6 +13,8 @@ public class HttpRequestClass {
     private HttpMethod method;
 
     private String url;
+    private String path;
+    private String paramStr;
 
     private String httpVersion;
 
@@ -22,6 +24,18 @@ public class HttpRequestClass {
         this.url = st.nextToken();
         this.httpVersion = st.nextToken();
 
+        if(url.contains("/")){
+            String rawPath = url.substring(url.indexOf("/"));
+            if(rawPath.contains("?")){
+                int index = rawPath.indexOf("?");
+                this.path = rawPath.substring(0, index);
+                this.paramStr = rawPath.substring(index+1);
+            }else {
+                this.path = rawPath;
+            }
+
+        }
+
     }
 
     public HttpMethod getMethod() {
@@ -30,6 +44,13 @@ public class HttpRequestClass {
 
     public String getUrl() {
         return url;
+    }
+
+    public String getPath(){
+        return path;
+    }
+    public String getParam(){
+        return paramStr;
     }
 
     @Override
