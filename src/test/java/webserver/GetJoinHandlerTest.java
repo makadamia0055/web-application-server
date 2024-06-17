@@ -17,7 +17,7 @@ public class GetJoinHandlerTest {
 
         HttpRequestClass httpRequestClass = new HttpRequestClass(header);
 
-        GetJoinHandler getJoinHandler = new GetJoinHandler();
+        GetJoinHandler getJoinHandler = new GetJoinHandler("/user/create");
 
         log.info("isMapping :" + getJoinHandler.isMapping(httpRequestClass));
 
