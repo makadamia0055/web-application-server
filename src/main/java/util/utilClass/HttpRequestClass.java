@@ -2,8 +2,11 @@ package util.utilClass;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.HttpRequestUtils;
 import webserver.RequestHandler;
 
+import java.util.Map;
+import java.util.Optional;
 import java.util.StringTokenizer;
 
 public class HttpRequestClass {
@@ -14,7 +17,7 @@ public class HttpRequestClass {
 
     private String url;
     private String path;
-    private String paramStr;
+    private Map<String, String> param;
 
     private String httpVersion;
 
@@ -29,7 +32,9 @@ public class HttpRequestClass {
             if(rawPath.contains("?")){
                 int index = rawPath.indexOf("?");
                 this.path = rawPath.substring(0, index);
-                this.paramStr = rawPath.substring(index+1);
+                String paramStr = rawPath.substring(index+1);
+                this.param = HttpRequestUtils.parseQueryString(paramStr);
+
             }else {
                 this.path = rawPath;
             }
@@ -49,8 +54,8 @@ public class HttpRequestClass {
     public String getPath(){
         return path;
     }
-    public String getParam(){
-        return paramStr;
+    public Optional<Map<String, String>> getParam(){
+        return Optional.ofNullable(param);
     }
 
     @Override

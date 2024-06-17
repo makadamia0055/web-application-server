@@ -31,8 +31,8 @@ public class GetJoinHandler {
         return false;
     }
     public String handle(HttpRequestClass httpRequestClass){
-        String paramStr = httpRequestClass.getParam();
-        Map<String, String> queryStringMap = HttpRequestUtils.parseQueryString(paramStr);
+
+        Map<String, String> queryStringMap =httpRequestClass.getParam().orElseThrow(()-> new IllegalArgumentException("파라미터가 없습니다."));
 
         this.userId = Optional.ofNullable(queryStringMap.get("userId")).orElseThrow(() -> new IllegalArgumentException("쿼리 파라미터에 userId가 없습니다."));
         this.password = Optional.ofNullable(queryStringMap.get("password")).orElseThrow(() -> new IllegalArgumentException("쿼리 파라미터에 password가 없습니다."));
