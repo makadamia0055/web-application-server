@@ -3,11 +3,13 @@ package webserver;
 import java.io.*;
 import java.net.Socket;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.ClasspathFileReader;
 import util.utilClass.HttpRequestClass;
+import util.utilClass.HttpRequestParser;
 
 import javax.swing.text.html.Option;
 
@@ -37,7 +39,7 @@ public class RequestHandler extends Thread {
             // urlMapper 생성(이후 필드로 옮기기)
             // 서버 init 작업하면서 매핑 정보 자동 입력할 수 있도록.
             HandlerMapper handlerMapper = HandlerMapper.getInstance();
-            log.info(httpRequestClass.getUrl());
+            log.info(httpRequestClass.getPath());
 
 
             // urlMapper에서 매핑되는 url을 찾고 없으면 디폴트 값 전달
@@ -62,11 +64,28 @@ public class RequestHandler extends Thread {
 
     private static Optional<HttpRequestClass> extracted(BufferedReader br) throws IOException {
         try{
-            String httpHeader = br.readLine();
-            if(httpHeader == null|| httpHeader.isEmpty()){
+            StringBuilder headerBuilder = new StringBuilder();
+            String line;
+            while (!(line = br.readLine()).isEmpty()) {
+                headerBuilder.append(line).append("\n");
+            }
+
+            String headers = headerBuilder.toString().trim();
+            if (headers.isEmpty()) {
                 return Optional.empty();
             }
-            return Optional.of(new HttpRequestClass(httpHeader));
+            log.info(headers);
+            HttpRequestClass httpRequestClass = HttpRequestParser.extractHttpRequest(br).orElseThrow();
+
+            // 헤더와 바디를 분리
+
+            String body = br.lines().collect(Collectors.joining("\n"));
+
+
+            log.info(body);
+            httpRequestClass.setBody(body);
+
+            return Optional.of(httpRequestClass);
         }catch (IOException e){
             e.printStackTrace();
             return Optional.empty();

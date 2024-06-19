@@ -51,6 +51,7 @@ public class HandlerMapper {
             urlViewMapper.put(httpMethod, new ArrayList<>());
         }
         urlViewMapper.get(HttpMethod.GET).add(new GetJoinHandler("/user/create"));
+        urlViewMapper.get(HttpMethod.POST).add(new POSTJoinHandler("/user/create"));
 
 
     }
@@ -60,7 +61,7 @@ public class HandlerMapper {
     }
 
     public Optional<String> getMapping(HttpRequestClass httpRequestClass){
-        String url = httpRequestClass.getUrl();
+        String url = httpRequestClass.getPath();
         HttpMethod httpMethod = httpRequestClass.getMethod();
 
 

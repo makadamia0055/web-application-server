@@ -28,7 +28,7 @@ public class HttpRequestClass {
         this.body = body;
     }
 
-    public String getMethod() {
+    public HttpMethod getMethod() {
         return method;
     }
 

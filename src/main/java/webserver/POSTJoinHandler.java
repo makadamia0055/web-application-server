@@ -12,6 +12,6 @@ public class POSTJoinHandler extends AbstractHandler{
     }
     @Override
     public String handle(HttpRequestClass httpRequestClass) {
-        return null;
+        return "index.html";
     }
 }
