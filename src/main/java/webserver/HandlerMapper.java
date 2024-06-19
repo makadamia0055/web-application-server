@@ -19,7 +19,7 @@ public class HandlerMapper {
 
     private static final HandlerMapper instance = new HandlerMapper();
 
-    private Map<HttpMethod, Map<String, Method>> urlViewMapper = new HashMap<>();
+    private Map<HttpMethod, List<AbstractHandler>> urlViewMapper = new HashMap<>();
     private List<String> resourcePathList = new ArrayList<>();
 
     private HandlerMapper(){
@@ -32,6 +32,7 @@ public class HandlerMapper {
 
     }
 
+    // resources의 디렉토리, 파일들 추가하는
     private void addResourcePath() {
 
         String rootContext = System.getProperty("user.dir")+"/target/classes";
@@ -47,8 +48,10 @@ public class HandlerMapper {
 
     private void addViewPath(){
         for (HttpMethod httpMethod : HttpMethod.values()) {
-            urlViewMapper.put(httpMethod, new HashMap<>());
+            urlViewMapper.put(httpMethod, new ArrayList<>());
         }
+        urlViewMapper.get(HttpMethod.GET).add(new GetJoinHandler("/user/create"));
+
 
     }
 
@@ -60,30 +63,18 @@ public class HandlerMapper {
         String url = httpRequestClass.getUrl();
         HttpMethod httpMethod = httpRequestClass.getMethod();
 
-        if(urlViewMapper.containsKey(httpMethod)&&urlViewMapper.get(httpMethod).get(url)!=null){
-            Method method = urlViewMapper.get(httpMethod).get(url);
 
-            // 이 파라미터 처리를 위한 클래스
-
-            //파라미터 파서 : 쿼리스트링을 파싱해서 키:밸류 형태로 만드는 메서드
-            if(httpMethod.equals(HttpMethod.GET)&&method.getParameterCount()>0&&url.contains("?")){
-
-            }
-
-
+        if(!urlViewMapper.containsKey(httpMethod)){
+            return Optional.empty();
         }
 
+        AbstractHandler abstractHandler = urlViewMapper.get(httpMethod).stream()
+                .filter(handler -> handler.isMapping(httpRequestClass))
+                .findAny().orElseThrow(() -> new IllegalArgumentException(httpRequestClass.getPath()+"에 대한 핸들러가 없습니다."));
 
-        String parsedUrl = url.replaceFirst("/", "");
+        return Optional.ofNullable(abstractHandler.handle(httpRequestClass));
 
 
-        for(String str : resourcePathList){
-            if(parsedUrl.startsWith(str)){
-                return Optional.of(parsedUrl);
-            }
-        }
-
-        return Optional.empty();
     }
 
     private Object[] parseQueryStringToParameter(Method method, String url) {

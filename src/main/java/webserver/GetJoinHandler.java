@@ -27,7 +27,7 @@ public class GetJoinHandler extends AbstractHandler{
 
         User joinUser = new User(userId, password, name, "default@default.com");
         log.info(joinUser.toString());
-        return joinUser.toString();
+        return "join.html";
     }
 
 }
