@@ -2,6 +2,7 @@ package webserver;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -26,15 +27,12 @@ public class RequestHandler extends Thread {
         log.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
                 connection.getPort());
 
-        try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream();
-
-        ) {
+        try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream();) {
             // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
             DataOutputStream dos = new DataOutputStream(out);
 
-            HttpRequestClass httpRequestClass = extracted(br).orElseThrow(() -> new IllegalArgumentException());
-
+            HttpRequestClass httpRequestClass = HttpRequestParser.extractHttpRequest(br).orElseThrow(()->new IllegalArgumentException("HttpRequest Parse Fail"));
 
             // 커넥션에서 가져온 아웃풋 스트림으로 DataOutputStream 선언
 
@@ -54,14 +52,17 @@ public class RequestHandler extends Thread {
                 return ;
             }
 
-            ClasspathFileReader classpathFileReader = new ClasspathFileReader(mappedTemplate);
-
-            // 전달 받은 bodyString 변환
-            byte[] body = classpathFileReader.readFile();
-            if(body == null){
+//            ClasspathFileReader classpathFileReader = new ClasspathFileReader(mappedTemplate);
+            File requestedFile = new File(mappedTemplate);
+            if(!requestedFile.exists()||!requestedFile.isFile()){
                 sendErrorResponse(dos, 404, "Not Found");
                 return ;
             }
+
+
+            // 전달 받은 bodyString 변환
+            byte[] body = Files.readAllBytes(requestedFile.toPath());
+
 
             String contentType = getContentType(mappedTemplate);
             sendResponse(dos, 200, contentType, body);
@@ -79,33 +80,33 @@ public class RequestHandler extends Thread {
         dos.flush();
     }
 
-    private static Optional<HttpRequestClass> extracted(BufferedReader br) throws IOException {
-        try{
-//            StringBuilder headerBuilder = new StringBuilder();
-//            String line;
-//            while (!(line = br.readLine()).isEmpty()) {
-//                headerBuilder.append(line).append("\n");
-//            }
+//    private static Optional<HttpRequestClass> extracted(BufferedReader br) throws IOException {
+//        try{
+////            StringBuilder headerBuilder = new StringBuilder();
+////            String line;
+////            while (!(line = br.readLine()).isEmpty()) {
+////                headerBuilder.append(line).append("\n");
+////            }
+////
+////            String headers = headerBuilder.toString().trim();
+////            if (headers.isEmpty()) {
+////                return Optional.empty();
+////            }
+////            log.info(headers);
+//            HttpRequestClass httpRequestClass = HttpRequestParser.extractHttpRequest(br).orElseThrow();
 //
-//            String headers = headerBuilder.toString().trim();
-//            if (headers.isEmpty()) {
-//                return Optional.empty();
-//            }
-//            log.info(headers);
-            HttpRequestClass httpRequestClass = HttpRequestParser.extractHttpRequest(br).orElseThrow();
+//            // 헤더와 바디를 분리
+//
+//
+//
+//            return Optional.of(httpRequestClass);
+//        }catch (IOException e){
+//            e.printStackTrace();
+//            return Optional.empty();
+//        }
 
-            // 헤더와 바디를 분리
-
-
-
-            return Optional.of(httpRequestClass);
-        }catch (IOException e){
-            e.printStackTrace();
-            return Optional.empty();
-        }
-
-
-    }
+//
+//    }
     private void sendErrorResponse(DataOutputStream dos, int statusCode, String message) throws IOException{
         byte[] body = message.getBytes();
         sendResponse(dos, statusCode, "text/plain", body);
