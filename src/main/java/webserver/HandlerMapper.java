@@ -4,10 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.utilClass.HttpMethod;
 import util.utilClass.HttpRequestClass;
-import webserver.handlers.AbstractHandler;
-import webserver.handlers.GETJoinHandler;
-import webserver.handlers.POSTJoinHandler;
-import webserver.handlers.POSTLoginHandler;
+import webserver.handlers.*;
 
 import java.io.File;
 import java.nio.file.Paths;
@@ -73,7 +70,7 @@ public class HandlerMapper {
         return instance;
     }
 
-    public Optional<String> getMapping(HttpRequestClass httpRequestClass) {
+    public Optional<HandlerResponse> getMapping(HttpRequestClass httpRequestClass) {
         String url = httpRequestClass.getPath();
         HttpMethod httpMethod = httpRequestClass.getMethod();
 
@@ -85,13 +82,13 @@ public class HandlerMapper {
                     .findAny()
                     .orElse(null);
             if (abstractHandler != null) {
-                return Optional.ofNullable(abstractHandler.handle(httpRequestClass).getViewPath());
+                return Optional.ofNullable(abstractHandler.handle(httpRequestClass));
             }
         }
         // 정적 리소스 경로에서 파일 찾기
         File staticFile = new File(staticResourcePath, url);
         if(staticFile.exists()&&staticFile.isFile()){
-            return Optional.ofNullable(staticFile.getPath());
+            return Optional.ofNullable(new HandlerResponse(staticFile.getPath()));
         }
 
 

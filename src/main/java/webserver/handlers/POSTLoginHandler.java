@@ -27,7 +27,10 @@ public class POSTLoginHandler extends AbstractHandler{
         User findUser = WebServer.db.findUserById(params.get("userId"));
         if(findUser==null){
             log.error("유저 없음");
-            return new HandlerResponse("redirect:/user/login_failed.html");
+
+            HandlerResponse handlerResponse = new HandlerResponse("redirect:/user/login_failed.html");
+            handlerResponse.getParameterMap().put("logined", "false");
+            return handlerResponse;
         }
 
         // 유저 비번 검증
@@ -39,9 +42,13 @@ public class POSTLoginHandler extends AbstractHandler{
 
             return handlerResponse;
 
+        }else {
+            HandlerResponse handlerResponse = new HandlerResponse("redirect:/user/login_failed.html");
+            handlerResponse.getParameterMap().put("logined", "false");
+            return handlerResponse;
         }
 
 
-        return new HandlerResponse("redirect:/user/login_failed.html");
+
     }
 }
