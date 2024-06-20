@@ -34,29 +34,33 @@ public class HttpRequestParser {
             // 헤더를 읽어 Map로 정리
             Map<String, String> headers = new HashMap<>();
             String line;
-            while(!(line=br.readLine()).isEmpty()){
+            while((line=br.readLine())!=null&&!line.isEmpty()){
                 String[] headerParts = line.split(":", 2);
+
                 if(headerParts.length==2){
                     headers.put(headerParts[0].trim(), headerParts[1].trim());
                 }
             }
-            HttpRequestClass httpRequestClass = new HttpRequestClass(method, url, version, headers);
+
 
             // Content-Length 헤더가 있으면, 해당 길이만큼 바디를 읽음
+            String body;
             String contentLengthHeader = headers.get("Content-Length");
             if(contentLengthHeader != null){
                 int contentLength = Integer.parseInt(contentLengthHeader);
                 char[] bodyChars = new char[contentLength];
                 int read =  br.read(bodyChars, 0, contentLength);
-                String body = new String(bodyChars, 0, read);
+                body = new String(bodyChars, 0, read);
                 log.info(body);
-                httpRequestClass.setBody(body);
+
             }else{
                 // Content-length가 없는 경우 바디 전체를 읽기
-                String body = br.lines().collect(Collectors.joining("\n"));
+                body = br.lines().collect(Collectors.joining("\n"));
                 log.info(body);
-                httpRequestClass.setBody(body);
+
             }
+            HttpRequestClass httpRequestClass = new HttpRequestClass(method, url, version, headers, body);
+
             return Optional.of(httpRequestClass);
 
 

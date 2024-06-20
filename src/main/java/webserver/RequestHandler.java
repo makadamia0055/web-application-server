@@ -64,26 +64,22 @@ public class RequestHandler extends Thread {
 
     private static Optional<HttpRequestClass> extracted(BufferedReader br) throws IOException {
         try{
-            StringBuilder headerBuilder = new StringBuilder();
-            String line;
-            while (!(line = br.readLine()).isEmpty()) {
-                headerBuilder.append(line).append("\n");
-            }
-
-            String headers = headerBuilder.toString().trim();
-            if (headers.isEmpty()) {
-                return Optional.empty();
-            }
-            log.info(headers);
+//            StringBuilder headerBuilder = new StringBuilder();
+//            String line;
+//            while (!(line = br.readLine()).isEmpty()) {
+//                headerBuilder.append(line).append("\n");
+//            }
+//
+//            String headers = headerBuilder.toString().trim();
+//            if (headers.isEmpty()) {
+//                return Optional.empty();
+//            }
+//            log.info(headers);
             HttpRequestClass httpRequestClass = HttpRequestParser.extractHttpRequest(br).orElseThrow();
 
             // 헤더와 바디를 분리
 
-            String body = br.lines().collect(Collectors.joining("\n"));
 
-
-            log.info(body);
-            httpRequestClass.setBody(body);
 
             return Optional.of(httpRequestClass);
         }catch (IOException e){

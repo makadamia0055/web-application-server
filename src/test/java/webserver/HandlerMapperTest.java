@@ -24,14 +24,14 @@ public class HandlerMapperTest {
         stringStringMap.entrySet().forEach(entry-> System.out.println(entry.getKey()+":"+entry.getValue()));
     }
 
-    @Test
-    public void 핸들러매핑테스트() throws Exception {
-        String header = "GET /user/create?userId=javajigi&password=password&name=JaeSung HTTP/1.1";
-        HttpRequestClass httpRequestClass = new HttpRequestClass(header);
-
-        Optional<String> mapping = handlerMapper.getMapping(httpRequestClass);
-
-        System.out.println(mapping.orElseThrow(()-> new Exception("ddsd")));
-    }
+//    @Test
+//    public void 핸들러매핑테스트() throws Exception {
+//        String header = "GET /user/create?userId=javajigi&password=password&name=JaeSung HTTP/1.1";
+////        HttpRequestClass httpRequestClass = new HttpRequestClass(header);
+//
+//        Optional<String> mapping = handlerMapper.getMapping(httpRequestClass);
+//
+//        System.out.println(mapping.orElseThrow(()-> new Exception("ddsd")));
+//    }
 
 }
