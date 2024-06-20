@@ -46,6 +46,13 @@ public class RequestHandler extends Thread {
 
             // urlMapper에서 매핑되는 url을 찾고 없으면 디폴트 값 전달
             String mappedTemplate = handlerMapper.getMapping(httpRequestClass).orElseThrow();
+            log.info("mappedTemplete :" + mappedTemplate);
+            if(mappedTemplate.contains("redirect:")&&mappedTemplate.startsWith("redirect:")){
+                String location = mappedTemplate.substring(mappedTemplate.indexOf(":") + 1);
+                String contextPath = "http://localhost:8080";
+                sendRedirectionResponse(dos, contextPath, location);
+                return ;
+            }
 
             ClasspathFileReader classpathFileReader = new ClasspathFileReader(mappedTemplate);
 
@@ -63,6 +70,13 @@ public class RequestHandler extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void sendRedirectionResponse(DataOutputStream dos, String contextPath, String location) throws IOException {
+        dos.writeBytes("HTTP/1.1 " + "302 Found" +"\r\n");
+        dos.writeBytes("Location: " +contextPath+ location+ " \r\n");
+        dos.writeBytes("\r\n");
+        dos.flush();
     }
 
     private static Optional<HttpRequestClass> extracted(BufferedReader br) throws IOException {

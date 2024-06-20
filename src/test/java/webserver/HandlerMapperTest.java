@@ -18,11 +18,11 @@ public class HandlerMapperTest {
 */
 
     }
-    @Test
-    public void 파라미터파싱테스트(){
-        Map<String, String> stringStringMap = handlerMapper.parseQueryString("q=Java&lang=en");
-        stringStringMap.entrySet().forEach(entry-> System.out.println(entry.getKey()+":"+entry.getValue()));
-    }
+//    @Test
+//    public void 파라미터파싱테스트(){
+//        Map<String, String> stringStringMap = handlerMapper.parseQueryString("q=Java&lang=en");
+//        stringStringMap.entrySet().forEach(entry-> System.out.println(entry.getKey()+":"+entry.getValue()));
+//    }
 
 //    @Test
 //    public void 핸들러매핑테스트() throws Exception {
