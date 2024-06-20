@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.ClasspathFileReader;
+import util.HttpRequestUtils;
 import util.utilClass.HttpRequestClass;
 import util.utilClass.HttpRequestParser;
 import webserver.handlers.HandlerResponse;
@@ -35,6 +36,11 @@ public class RequestHandler extends Thread {
             DataOutputStream dos = new DataOutputStream(out);
 
             HttpRequestClass httpRequestClass = HttpRequestParser.extractHttpRequest(br).orElseThrow(()->new IllegalArgumentException("HttpRequest Parse Fail"));
+
+            if(httpRequestClass.getParams().get().get("Cookie")!=null){
+                Map<String, String> cookies = HttpRequestUtils.parseCookies(httpRequestClass.getParams().get().get("Cookie"));
+                log.info("logined? : "+ cookies.get("logined"));
+            }
 
             // 커넥션에서 가져온 아웃풋 스트림으로 DataOutputStream 선언
 
