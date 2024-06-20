@@ -26,14 +26,16 @@ public class RequestHandler extends Thread {
         log.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
                 connection.getPort());
 
-        try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
+        try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream();
 
+        ) {
+            // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            DataOutputStream dos = new DataOutputStream(out);
+
             HttpRequestClass httpRequestClass = extracted(br).orElseThrow(() -> new IllegalArgumentException());
 
 
-            DataOutputStream dos = new DataOutputStream(out);
             // 커넥션에서 가져온 아웃풋 스트림으로 DataOutputStream 선언
 
             // urlMapper 생성(이후 필드로 옮기기)
@@ -56,6 +58,7 @@ public class RequestHandler extends Thread {
 
             String contentType = getContentType(mappedTemplate);
             sendResponse(dos, 200, contentType, body);
+
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -92,6 +95,7 @@ public class RequestHandler extends Thread {
     private void sendErrorResponse(DataOutputStream dos, int statusCode, String message) throws IOException{
         byte[] body = message.getBytes();
         sendResponse(dos, statusCode, "text/plain", body);
+        dos.flush();
     }
     private String getContentType(String fileName){
         if(fileName.endsWith(".html")){

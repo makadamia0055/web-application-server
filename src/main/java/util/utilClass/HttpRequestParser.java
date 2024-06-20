@@ -44,7 +44,7 @@ public class HttpRequestParser {
 
 
             // Content-Length 헤더가 있으면, 해당 길이만큼 바디를 읽음
-            String body;
+            String body = null;
             String contentLengthHeader = headers.get("Content-Length");
             if(contentLengthHeader != null){
                 int contentLength = Integer.parseInt(contentLengthHeader);
@@ -53,12 +53,13 @@ public class HttpRequestParser {
                 body = new String(bodyChars, 0, read);
                 log.info(body);
 
-            }else{
-                // Content-length가 없는 경우 바디 전체를 읽기
-                body = br.lines().collect(Collectors.joining("\n"));
-                log.info(body);
-
             }
+//            else{
+//                // Content-length가 없는 경우 바디 전체를 읽기
+////                body = br.lines().collect(Collectors.joining("\n"));
+////                log.info(body);
+//
+//            }
             HttpRequestClass httpRequestClass = new HttpRequestClass(method, url, version, headers, body);
 
             return Optional.of(httpRequestClass);
