@@ -1,32 +1,31 @@
-package webserver;
+package webserver.handlers;
 
 import model.User;
 import util.utilClass.HttpMethod;
 import util.utilClass.HttpRequestClass;
+import webserver.WebServer;
+import webserver.handlers.AbstractHandler;
 
 import java.util.Map;
 import java.util.Optional;
 
-public class GetJoinHandler extends AbstractHandler{
+public class POSTJoinHandler extends AbstractHandler {
 
-
-    public GetJoinHandler(String mappedUrl){
+    public POSTJoinHandler(String mappedUrl){
         super();
-        this.httpMethod = HttpMethod.GET;
+        this.httpMethod = HttpMethod.POST;
         this.mappedUrl = mappedUrl;
     }
-
     @Override
-    public String handle(HttpRequestClass httpRequestClass){
-
+    public HandlerResponse handle(HttpRequestClass httpRequestClass){
         Map<String, String> queryStringMap =httpRequestClass.getParams().orElseThrow(()-> new IllegalArgumentException());
         String userId = Optional.ofNullable(queryStringMap.get("userId")).orElseThrow(() -> new IllegalArgumentException("쿼리 파라미터에 userId가 없습니다."));
         String password = Optional.ofNullable(queryStringMap.get("password")).orElseThrow(() -> new IllegalArgumentException("쿼리 파라미터에 password가 없습니다."));
         String name = Optional.ofNullable(queryStringMap.get("name")).orElseThrow(() -> new IllegalArgumentException("쿼리 파라미터에 name이 없습니다."));
 
         User joinUser = new User(userId, password, name, "default@default.com");
-        log.info(joinUser.toString());
-        return "redirect:/index.html";
-    }
+        WebServer.db.addUser(joinUser);
 
+        return new HandlerResponse("redirect:/index.html");
+    }
 }

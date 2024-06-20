@@ -39,12 +39,12 @@ public class RequestHandler extends Thread {
             // urlMapper 생성(이후 필드로 옮기기)
             // 서버 init 작업하면서 매핑 정보 자동 입력할 수 있도록.
             HandlerMapper handlerMapper = HandlerMapper.getInstance();
-            log.info(httpRequestClass.getPath());
+//            log.info(httpRequestClass.getPath());
 
 
             // urlMapper에서 매핑되는 url을 찾고 없으면 디폴트 값 전달
             String mappedTemplate = handlerMapper.getMapping(httpRequestClass).orElseThrow();
-            log.info("mappedTemplete :" + mappedTemplate);
+//            log.info("mappedTemplete :" + mappedTemplate);
             if(mappedTemplate.contains("redirect:")&&mappedTemplate.startsWith("redirect:")){
                 String location = mappedTemplate.substring(mappedTemplate.indexOf(":") + 1);
                 String contextPath = "http://localhost:8080";

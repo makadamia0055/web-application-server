@@ -4,16 +4,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.utilClass.HttpMethod;
 import util.utilClass.HttpRequestClass;
+import webserver.handlers.AbstractHandler;
+import webserver.handlers.GETJoinHandler;
+import webserver.handlers.POSTJoinHandler;
+import webserver.handlers.POSTLoginHandler;
 
 import java.io.File;
-import java.io.FilenameFilter;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 public class HandlerMapper {
 
@@ -63,8 +61,9 @@ public class HandlerMapper {
         for (HttpMethod httpMethod : HttpMethod.values()) {
             urlViewMapper.put(httpMethod, new ArrayList<>());
         }
-        urlViewMapper.get(HttpMethod.GET).add(new GetJoinHandler("/user/create"));
+        urlViewMapper.get(HttpMethod.GET).add(new GETJoinHandler("/user/create"));
         urlViewMapper.get(HttpMethod.POST).add(new POSTJoinHandler("/user/create"));
+        urlViewMapper.get(HttpMethod.POST).add(new POSTLoginHandler("/user/login"));
 
         log.info("View paths initialized for GET and POST methods.");
     }
@@ -86,7 +85,7 @@ public class HandlerMapper {
                     .findAny()
                     .orElse(null);
             if (abstractHandler != null) {
-                return Optional.ofNullable(abstractHandler.handle(httpRequestClass));
+                return Optional.ofNullable(abstractHandler.handle(httpRequestClass).getViewPath());
             }
         }
         // 정적 리소스 경로에서 파일 찾기

@@ -3,12 +3,14 @@ package webserver;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import db.DataBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class WebServer {
     private static final Logger log = LoggerFactory.getLogger(WebServer.class);
     private static final int DEFAULT_PORT = 8080;
+    public static DataBase db = new DataBase();
 
     public static void main(String args[]) throws Exception {
         int port = 0;

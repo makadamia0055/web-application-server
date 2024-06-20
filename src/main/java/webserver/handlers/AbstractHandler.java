@@ -1,9 +1,10 @@
-package webserver;
+package webserver.handlers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.utilClass.HttpMethod;
 import util.utilClass.HttpRequestClass;
+import webserver.RequestHandler;
 
 public abstract class AbstractHandler {
 
@@ -20,5 +21,5 @@ public abstract class AbstractHandler {
         return false;
     }
 
-    public abstract String handle(HttpRequestClass httpRequestClass);
+    public abstract HandlerResponse handle(HttpRequestClass httpRequestClass);
 }
