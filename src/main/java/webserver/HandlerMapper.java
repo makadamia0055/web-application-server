@@ -35,24 +35,7 @@ public class HandlerMapper {
         log.info("Root context for resources: {}", staticResourcePath);
     }
 
-        /*File file = new File(rootContext);
-        String[] filesAndDirectories = file.list();
-        if (filesAndDirectories != null) {
-            resourcePathList.addAll(Arrays.stream(filesAndDirectories).collect(Collectors.toList()));
-        } else {
-            log.warn("No files or directories found in: {}", rootContext);
-        }
 
-        // 자원 매핑 넣어주기
-        List<ResourceHandler> resourceHandlers = resourcePathList.stream()
-                .map(str -> new ResourceHandler("/" + str))
-                .peek(resourceHandler -> log.info(resourceHandler.mappedUrl))
-                .collect(Collectors.toList());
-
-        urlViewMapper.get(HttpMethod.GET).addAll(resourceHandlers);
-        log.info("Resource handlers added: {}", resourceHandlers);
-    }
-*/
 
     private void addViewPath() {
         for (HttpMethod httpMethod : HttpMethod.values()) {
@@ -61,6 +44,7 @@ public class HandlerMapper {
         urlViewMapper.get(HttpMethod.GET).add(new GETJoinHandler("/user/create"));
         urlViewMapper.get(HttpMethod.POST).add(new POSTJoinHandler("/user/create"));
         urlViewMapper.get(HttpMethod.POST).add(new POSTLoginHandler("/user/login"));
+        urlViewMapper.get(HttpMethod.GET).add(new GETUserListHandler("/user/list.html"));
 
         log.info("View paths initialized for GET and POST methods.");
     }
@@ -82,7 +66,7 @@ public class HandlerMapper {
                     .findAny()
                     .orElse(null);
             if (abstractHandler != null) {
-                return Optional.ofNullable(abstractHandler.handle(httpRequestClass));
+                return Optional.ofNullable(abstractHandler.run(httpRequestClass));
             }
         }
         // 정적 리소스 경로에서 파일 찾기
@@ -98,52 +82,6 @@ public class HandlerMapper {
 
 
 
-//    private Object[] parseQueryStringToParameter(Method method, String url) {
-//        String split = url.split("\\?")[1];
-//        Map<String, String> stringStringMap = parseQueryString(split);
-//
-//        Map<Class, Object> parameterInstanceMap = new HashMap<>();
-//        Class<?>[] parameterTypes = method.getParameterTypes();
-//
-//        for (Entry<String, String> stringStringEntry : stringStringMap.entrySet()) {
-//            for (Class<?> parameterType : parameterTypes) {
-//                Arrays.stream(parameterType.getFields())
-//                        .map(field->field.getName())
-//                        .filter(fieldName-> fieldName.equals(stringStringEntry.getKey()))
-//                        .findAny()
-//                        .ifPresent(fieldName-> {
-//                            try {
-//                                parameterInstanceMap.putIfAbsent(parameterType, parameterType.getConstructor().newInstance());
-//                            } catch (Exception e) {
-//
-//                            }
-//                        });
-//
-//
-//            }
-//
-//
-//        }
-//
-//
-//        return null;
-//
-//    }
 
-//    public Map<String, String> parseQueryString(String url) {
-//        Map<String, String> queryStringMap = new HashMap<>();
-//
-//        StringTokenizer st = new StringTokenizer(url, "&");
-//
-//        while(st.hasMoreTokens()){
-//            String token = st.nextToken();
-//            if(token.contains("=")){
-//                String[] splitToken = token.split("=");
-//                queryStringMap.put(splitToken[0], splitToken[1]);
-//            }
-//
-//        }
-//        return queryStringMap;
-//    }
 
 }

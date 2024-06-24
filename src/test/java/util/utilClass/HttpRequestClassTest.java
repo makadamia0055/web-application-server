@@ -23,7 +23,7 @@ public class HttpRequestClassTest{
 
         log.info(httpRequestClass.getMethod() +" ,"+ httpRequestClass.getUrl()+" ," +httpRequestClass.getPath());
 
-        for (Entry<String, String> stringStringEntry : httpRequestClass.getParams().orElseThrow().entrySet()) {
+        for (Entry<String, String> stringStringEntry : httpRequestClass.getParams().entrySet()) {
             log.info(stringStringEntry.getKey()+" ,"+stringStringEntry.getValue());
         }
 
@@ -43,7 +43,7 @@ public class HttpRequestClassTest{
 
         log.info(httpRequestClass.getMethod() +" ,"+ httpRequestClass.getUrl()+" ," +httpRequestClass.getPath());
 
-        for (Entry<String, String> stringStringEntry : httpRequestClass.getParams().orElseThrow().entrySet()) {
+        for (Entry<String, String> stringStringEntry : httpRequestClass.getParams().entrySet()) {
             log.info(stringStringEntry.getKey()+" ,"+stringStringEntry.getValue());
         }
 

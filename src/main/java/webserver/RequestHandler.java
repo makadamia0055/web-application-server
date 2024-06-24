@@ -2,6 +2,7 @@ package webserver;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.Map.Entry;
@@ -37,10 +38,7 @@ public class RequestHandler extends Thread {
 
             HttpRequestClass httpRequestClass = HttpRequestParser.extractHttpRequest(br).orElseThrow(()->new IllegalArgumentException("HttpRequest Parse Fail"));
 
-            if(httpRequestClass.getParams().get().get("Cookie")!=null){
-                Map<String, String> cookies = HttpRequestUtils.parseCookies(httpRequestClass.getParams().get().get("Cookie"));
-                log.info("logined? : "+ cookies.get("logined"));
-            }
+
 
             // 커넥션에서 가져온 아웃풋 스트림으로 DataOutputStream 선언
 
@@ -52,7 +50,6 @@ public class RequestHandler extends Thread {
 
             // urlMapper에서 매핑되는 url을 찾고 없으면 디폴트 값 전달
             HandlerResponse handlerResponse = handlerMapper.getMapping(httpRequestClass).orElseThrow();
-
 
 
             String mappedTemplate = handlerResponse.getViewPath();
@@ -69,10 +66,45 @@ public class RequestHandler extends Thread {
                 return ;
             }
 
-
             // 전달 받은 bodyString 변환
             byte[] body = Files.readAllBytes(requestedFile.toPath());
-
+//
+//
+//            BufferedReader reader = Files.newBufferedReader(requestedFile.toPath(), StandardCharsets.UTF_8);
+//            StringBuilder sb = new StringBuilder();
+//            String line;
+//            while((line= reader.readLine())!=null){
+//                sb.append(line).append(System.lineSeparator());
+//            }
+//            String bodyStr = sb.toString();
+//            log.info(bodyStr);
+//            if(bodyStr.contains("<for>")&&bodyStr.contains("</for>")){
+//                log.info("body str parsing");
+//                String[] split1 = bodyStr.split("<for>");
+//                String bodyBefore = split1[0];
+//                String[] split2 = split1[1].split("</for>");
+//                String forStr = split2[0];
+//                String bodyPost = split2[1];
+//
+//                String string = handlerResponse.getParameterMap().get("users");
+//                log.info("users :"+string);
+//                if(string!=null){
+//                    List<String> stringList = Arrays.stream(string.split(";"))
+//                            .map(str -> str.split(":"))
+//                            .map(strs -> forStr.replace("for:id", strs[0]).replace("for:name", strs[1]).replace("for:email", strs[2]))
+//                            .collect(Collectors.toList());
+//                    StringBuilder sb2 = new StringBuilder();
+//                    for (int i = 0; i < stringList.size() ; i++) {
+//                        String replace = stringList.get(i).replace("for:index", String.valueOf(i + 1));
+//                        sb2.append(replace);
+//
+//                    }
+//                    String fullStr = bodyBefore + sb2.toString() + bodyPost;
+//                    log.info("fullStr" + fullStr);
+//                    body = fullStr.getBytes();
+//                }
+//
+//            }
 
             String contentType = getContentType(mappedTemplate);
             sendResponse(dos, 200, contentType, body, handlerResponse);
@@ -87,14 +119,18 @@ public class RequestHandler extends Thread {
         dos.writeBytes("HTTP/1.1 " + "302 Found" +"\r\n");
         dos.writeBytes("Location: " +contextPath+ location+ " \r\n");
         log.info(handlerResponse.getViewPath());
-        for (Entry<String, String> entry : handlerResponse.getParameterMap().entrySet()) {
-            log.info(entry.getKey()+":"+entry.getValue());
-
-            dos.writeBytes("Set-Cookie: " + entry.getKey()+"="+entry.getValue()+"\r\n");
-        }
+        setCookies(dos, handlerResponse);
 
         dos.writeBytes("\r\n");
         dos.flush();
+    }
+
+    private static void setCookies(DataOutputStream dos, HandlerResponse handlerResponse) throws IOException {
+        for (Entry<String, String> entry : handlerResponse.getParameterMap().entrySet()) {
+            log.info(entry.getKey()+":"+entry.getValue());
+
+            dos.writeBytes("Set-Cookie: " + entry.getKey()+"="+entry.getValue()+"; Path=/; Max-Age=600; \r\n");
+        }
     }
 
 
@@ -120,10 +156,8 @@ public class RequestHandler extends Thread {
         dos.writeBytes("HTTP/1.1" + statusCode + " \r\n");
         dos.writeBytes("Content-Type: " + contentType + ";charset=utf-8\r\n");
         dos.writeBytes("Content-length: " + body.length + "\r\n");
-        for (Entry<String, String> entry : handlerResponse.getParameterMap().entrySet()) {
-            log.info(entry.getKey()+":"+entry.getValue());
-            dos.writeBytes("Set-Cookie: " + entry.getKey()+"="+entry.getValue()+"\r\n");
-        }
+        setCookies(dos, handlerResponse);
+
         dos.writeBytes("\r\n");
         dos.write(body);
         dos.flush();

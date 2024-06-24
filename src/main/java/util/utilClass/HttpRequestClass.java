@@ -66,8 +66,13 @@ public class HttpRequestClass {
         }
 
     }
-    public Optional<Map<String, String>> getParams(){
-        return Optional.ofNullable(params);
+    public Map<String, String> getCookies(){
+        String cookieStr = headers.get("Cookie");
+        return HttpRequestUtils.parseCookies(cookieStr);
+    }
+
+    public Map<String, String> getParams(){
+        return params;
     }
 
     public String getPath() {

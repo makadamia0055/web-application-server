@@ -16,10 +16,11 @@ public class POSTLoginHandler extends AbstractHandler{
     }
     @Override
     public HandlerResponse handle(HttpRequestClass httpRequestClass) {
-        Map<String, String> params = httpRequestClass.getParams().orElseThrow(() -> new IllegalArgumentException("파라미터가 없음"));
+        Map<String, String> params = httpRequestClass.getParams();
         if(!params.containsKey("userId")||!params.containsKey("password")){
             log.error("파라미터 파싱 에러");
-            return new HandlerResponse("redirect:/user/login_failed.html");
+            this.handlerResponse.setViewPath("redirect:/user/login_failed.html");
+            return this.handlerResponse;
         }
 
         //유저 존재 검증
@@ -28,24 +29,24 @@ public class POSTLoginHandler extends AbstractHandler{
         if(findUser==null){
             log.error("유저 없음");
 
-            HandlerResponse handlerResponse = new HandlerResponse("redirect:/user/login_failed.html");
-            handlerResponse.getParameterMap().put("logined", "false");
+            this.handlerResponse.setViewPath("redirect:/user/login_failed.html");
+            this.handlerResponse.getParameterMap().put("logined", "false");
             return handlerResponse;
         }
 
         // 유저 비번 검증
         if(findUser.getPassword().equals(params.get("password"))){
             log.info(findUser.getUserId() + " : 로그인");
-            HandlerResponse handlerResponse = new HandlerResponse("redirect:/index.html");
-            handlerResponse.getParameterMap().put("logined", "true");
-            handlerResponse.getParameterMap().put("userId", findUser.getUserId());
+            this.handlerResponse.setViewPath("redirect:/index.html");
+            this.handlerResponse.getParameterMap().put("logined", "true");
+            this.handlerResponse.getParameterMap().put("userId", findUser.getUserId());
 
-            return handlerResponse;
+            return this.handlerResponse;
 
         }else {
-            HandlerResponse handlerResponse = new HandlerResponse("redirect:/user/login_failed.html");
-            handlerResponse.getParameterMap().put("logined", "false");
-            return handlerResponse;
+            this.handlerResponse.setViewPath("redirect:/user/login_failed.html");
+            this.handlerResponse.getParameterMap().put("logined", "false");
+            return this.handlerResponse;
         }
 
 

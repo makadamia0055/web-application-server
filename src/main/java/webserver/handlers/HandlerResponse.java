@@ -7,7 +7,14 @@ public class HandlerResponse {
     private String viewPath;
     private Map<String, String> parameterMap = new HashMap<>();
 
+
+    public HandlerResponse(){
+    }
     public HandlerResponse(String viewPath) {
+        this.viewPath = viewPath;
+    }
+
+    public void setViewPath(String viewPath){
         this.viewPath = viewPath;
     }
 
@@ -18,6 +25,8 @@ public class HandlerResponse {
     public Map<String, String> getParameterMap() {
         return parameterMap;
     }
+
+
 
 
 }
