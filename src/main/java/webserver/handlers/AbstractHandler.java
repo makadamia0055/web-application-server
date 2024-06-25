@@ -8,6 +8,7 @@ import util.utilClass.HttpRequestClass;
 import webserver.RequestHandler;
 
 import java.net.http.HttpResponse;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Optional;
 
@@ -17,6 +18,9 @@ public abstract class AbstractHandler {
 
     HandlerResponse handlerResponse;
     HttpMethod httpMethod;
+
+
+    String staticResourcePath = Paths.get(System.getProperty("user.dir"), "target", "classes").toString();
 
     String mappedUrl;
 
@@ -45,5 +49,11 @@ public abstract class AbstractHandler {
         this.handlerResponse.getParameterMap().putAll(cookies);
         return handle(httpRequestClass);
     }
+
+//    private HandlerResponse setStaticPath(HttpRequestClass httpRequestClass) {
+//        HandlerResponse handlerResponse = handle(httpRequestClass);
+//        handlerResponse.setViewPath(this.staticResourcePath+handlerResponse.getViewPath());
+//        return handlerResponse;
+//    }
 
 }

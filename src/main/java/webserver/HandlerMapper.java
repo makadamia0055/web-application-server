@@ -35,6 +35,14 @@ public class HandlerMapper {
         log.info("Root context for resources: {}", staticResourcePath);
     }
 
+    public String getStaticResourcePath(){
+        return staticResourcePath;
+    }
+
+    public static HandlerMapper getInstance(){
+        return instance;
+    }
+
 
 
     private void addViewPath() {
@@ -44,15 +52,12 @@ public class HandlerMapper {
         urlViewMapper.get(HttpMethod.GET).add(new GETJoinHandler("/user/create"));
         urlViewMapper.get(HttpMethod.POST).add(new POSTJoinHandler("/user/create"));
         urlViewMapper.get(HttpMethod.POST).add(new POSTLoginHandler("/user/login"));
-        urlViewMapper.get(HttpMethod.GET).add(new GETUserListHandler("/user/list.html"));
+        urlViewMapper.get(HttpMethod.GET).add(new GETUserListHandler("/user/list"));
+        urlViewMapper.get(HttpMethod.GET).add(new GETLoginHandler("/user/login"));
 
         log.info("View paths initialized for GET and POST methods.");
     }
 
-
-    public static HandlerMapper getInstance(){
-        return instance;
-    }
 
     public Optional<HandlerResponse> getMapping(HttpRequestClass httpRequestClass) {
         String url = httpRequestClass.getPath();
@@ -72,7 +77,7 @@ public class HandlerMapper {
         // 정적 리소스 경로에서 파일 찾기
         File staticFile = new File(staticResourcePath, url);
         if(staticFile.exists()&&staticFile.isFile()){
-            return Optional.ofNullable(new HandlerResponse(staticFile.getPath()));
+            return Optional.ofNullable(new HandlerResponse(url));
         }
 
 

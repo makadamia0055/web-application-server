@@ -2,24 +2,22 @@ package webserver;
 
 import java.io.*;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.ClasspathFileReader;
-import util.HttpRequestUtils;
 import util.utilClass.HttpRequestClass;
 import util.utilClass.HttpRequestParser;
 import webserver.handlers.HandlerResponse;
 
-import javax.swing.text.html.Option;
-
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
+
+    private String staticResourcePath = Paths.get(System.getProperty("user.dir"), "target", "classes").toString();
 
     private Socket connection;
 
@@ -53,58 +51,24 @@ public class RequestHandler extends Thread {
 
 
             String mappedTemplate = handlerResponse.getViewPath();
-            if(mappedTemplate.contains("redirect:")&&mappedTemplate.startsWith("redirect:")){
+            if(mappedTemplate.contains("redirect:")){
                 String location = mappedTemplate.substring(mappedTemplate.indexOf(":") + 1);
                 String contextPath = "http://localhost:8080";
                 sendRedirectionResponse(dos, contextPath, location, handlerResponse);
                 return ;
             }
 
-            File requestedFile = new File(mappedTemplate);
+            File requestedFile = new File(staticResourcePath + mappedTemplate);
+            log.info(requestedFile.getPath());
             if(!requestedFile.exists()||!requestedFile.isFile()){
                 sendErrorResponse(dos, 404, "Not Found");
                 return ;
             }
 
             // 전달 받은 bodyString 변환
-            byte[] body = Files.readAllBytes(requestedFile.toPath());
-//
-//
-//            BufferedReader reader = Files.newBufferedReader(requestedFile.toPath(), StandardCharsets.UTF_8);
-//            StringBuilder sb = new StringBuilder();
-//            String line;
-//            while((line= reader.readLine())!=null){
-//                sb.append(line).append(System.lineSeparator());
-//            }
-//            String bodyStr = sb.toString();
-//            log.info(bodyStr);
-//            if(bodyStr.contains("<for>")&&bodyStr.contains("</for>")){
-//                log.info("body str parsing");
-//                String[] split1 = bodyStr.split("<for>");
-//                String bodyBefore = split1[0];
-//                String[] split2 = split1[1].split("</for>");
-//                String forStr = split2[0];
-//                String bodyPost = split2[1];
-//
-//                String string = handlerResponse.getParameterMap().get("users");
-//                log.info("users :"+string);
-//                if(string!=null){
-//                    List<String> stringList = Arrays.stream(string.split(";"))
-//                            .map(str -> str.split(":"))
-//                            .map(strs -> forStr.replace("for:id", strs[0]).replace("for:name", strs[1]).replace("for:email", strs[2]))
-//                            .collect(Collectors.toList());
-//                    StringBuilder sb2 = new StringBuilder();
-//                    for (int i = 0; i < stringList.size() ; i++) {
-//                        String replace = stringList.get(i).replace("for:index", String.valueOf(i + 1));
-//                        sb2.append(replace);
-//
-//                    }
-//                    String fullStr = bodyBefore + sb2.toString() + bodyPost;
-//                    log.info("fullStr" + fullStr);
-//                    body = fullStr.getBytes();
-//                }
-//
-//            }
+//            byte[] body = Files.readAllBytes(requestedFile.toPath());
+
+            byte[] body = viewTemplate(requestedFile, handlerResponse);
 
             String contentType = getContentType(mappedTemplate);
             sendResponse(dos, 200, contentType, body, handlerResponse);
@@ -113,6 +77,44 @@ public class RequestHandler extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private byte[] viewTemplate(File requestedFile, HandlerResponse handlerResponse) throws IOException {
+        if(!requestedFile.toPath().toString().endsWith(".html")){
+            log.info(requestedFile.toPath().toString());
+            return Files.readAllBytes(requestedFile.toPath());
+        }
+        String bodyStr =Files.readString(requestedFile.toPath());
+        log.info(bodyStr);
+
+        if(bodyStr.contains("<for>")&&bodyStr.contains("</for>")){
+            log.info("body str parsing");
+            String[] split1 = bodyStr.split("<for>");
+            String bodyBefore = split1[0];
+            String[] split2 = split1[1].split("</for>");
+            String forStr = split2[0];
+            String bodyPost = split2[1];
+
+            String string = handlerResponse.getParameterMap().get("users");
+            log.info("users :"+string);
+            if(string!=null){
+                List<String> stringList = Arrays.stream(string.split(";"))
+                        .map(str -> str.split(":"))
+                        .map(strs -> forStr.replace("for:id", strs[0]).replace("for:name", strs[1]).replace("for:email", strs[2]))
+                        .collect(Collectors.toList());
+                StringBuilder sb2 = new StringBuilder();
+                for (int i = 0; i < stringList.size() ; i++) {
+                    String replace = stringList.get(i).replace("for:index", String.valueOf(i + 1));
+                    sb2.append(replace);
+
+                }
+                String fullStr = bodyBefore + sb2.toString() + bodyPost;
+                log.info("fullStr" + fullStr);
+                return fullStr.getBytes();
+            }
+
+        }
+        return bodyStr.getBytes();
     }
 
     private void sendRedirectionResponse(DataOutputStream dos, String contextPath, String location, HandlerResponse handlerResponse) throws IOException {
