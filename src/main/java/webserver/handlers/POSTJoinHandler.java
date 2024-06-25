@@ -12,9 +12,7 @@ import java.util.Optional;
 public class POSTJoinHandler extends AbstractHandler {
 
     public POSTJoinHandler(String mappedUrl){
-        super();
-        this.httpMethod = HttpMethod.POST;
-        this.mappedUrl = mappedUrl;
+        super(HttpMethod.POST, mappedUrl);
     }
     @Override
     public HandlerResponse handle(HttpRequestClass httpRequestClass){

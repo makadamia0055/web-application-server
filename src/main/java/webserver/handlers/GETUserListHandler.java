@@ -11,9 +11,7 @@ import java.util.Map;
 public class GETUserListHandler extends AbstractHandler{
 
     public GETUserListHandler(String mappedUrl){
-        super();
-        this.httpMethod = HttpMethod.GET;
-        this.mappedUrl = mappedUrl;
+        super(HttpMethod.GET, mappedUrl);
     }
 
     @Override

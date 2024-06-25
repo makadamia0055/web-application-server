@@ -10,9 +10,7 @@ import java.util.Map;
 public class POSTLoginHandler extends AbstractHandler{
 
     public POSTLoginHandler(String mappedUrl){
-        super();
-        this.httpMethod = HttpMethod.POST;
-        this.mappedUrl = mappedUrl;
+        super(HttpMethod.POST, mappedUrl);
     }
     @Override
     public HandlerResponse handle(HttpRequestClass httpRequestClass) {

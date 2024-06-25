@@ -12,9 +12,7 @@ public class GETJoinHandler extends AbstractHandler{
 
 
     public GETJoinHandler(String mappedUrl){
-        super();
-        this.httpMethod = HttpMethod.GET;
-        this.mappedUrl = mappedUrl;
+        super(HttpMethod.GET, mappedUrl);
     }
 
     @Override

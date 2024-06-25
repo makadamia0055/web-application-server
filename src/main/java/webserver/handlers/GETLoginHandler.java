@@ -6,9 +6,7 @@ import util.utilClass.HttpRequestClass;
 public class GETLoginHandler extends AbstractHandler{
 
     public GETLoginHandler(String mappedURL){
-        super();
-        this.mappedUrl = mappedURL;
-        this.httpMethod = HttpMethod.GET;
+        super(HttpMethod.GET, mappedURL);
     }
     @Override
     public HandlerResponse handle(HttpRequestClass httpRequestClass) {

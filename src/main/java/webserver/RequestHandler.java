@@ -36,41 +36,36 @@ public class RequestHandler extends Thread {
 
             HttpRequestClass httpRequestClass = HttpRequestParser.extractHttpRequest(br).orElseThrow(()->new IllegalArgumentException("HttpRequest Parse Fail"));
 
-
-
-            // 커넥션에서 가져온 아웃풋 스트림으로 DataOutputStream 선언
-
-            // urlMapper 생성(이후 필드로 옮기기)
-            // 서버 init 작업하면서 매핑 정보 자동 입력할 수 있도록.
+            // 매핑 정보 관리 및 매핑 작업을 담당하는 HandlerMapper 클래스
             HandlerMapper handlerMapper = HandlerMapper.getInstance();
-//            log.info(httpRequestClass.getPath());
-
 
             // urlMapper에서 매핑되는 url을 찾고 없으면 디폴트 값 전달
             HandlerResponse handlerResponse = handlerMapper.getMapping(httpRequestClass).orElseThrow();
 
-
-            String mappedTemplate = handlerResponse.getViewPath();
-            if(mappedTemplate.contains("redirect:")){
-                String location = mappedTemplate.substring(mappedTemplate.indexOf(":") + 1);
+            // 리다이렉션 처리
+            String viewPath = handlerResponse.getViewPath();
+            if(viewPath.contains("redirect:")){
+                String location = viewPath.substring(viewPath.indexOf(":") + 1);
                 String contextPath = "http://localhost:8080";
                 sendRedirectionResponse(dos, contextPath, location, handlerResponse);
                 return ;
             }
 
-            File requestedFile = new File(staticResourcePath + mappedTemplate);
+            // 매핑 처리 결과로 리턴된 ViewPath에 해당하는 파일을 찾아 리턴
+            File requestedFile = new File(staticResourcePath + viewPath);
             log.info(requestedFile.getPath());
+            // 파일이 없을 시 404 에러 리턴
             if(!requestedFile.exists()||!requestedFile.isFile()){
                 sendErrorResponse(dos, 404, "Not Found");
                 return ;
             }
 
-            // 전달 받은 bodyString 변환
-//            byte[] body = Files.readAllBytes(requestedFile.toPath());
-
+            // viewPath의 view 파일을 읽어옴.
+            // 템플릿 작업을 위해 String으로 읽어오고, 해당 문자열 내에 템플릿 문자열이 존재하는지 확인
             byte[] body = viewTemplate(requestedFile, handlerResponse);
 
-            String contentType = getContentType(mappedTemplate);
+            // 콘텐츠 타입 확인
+            String contentType = getContentType(viewPath);
             sendResponse(dos, 200, contentType, body, handlerResponse);
 
 
@@ -79,6 +74,9 @@ public class RequestHandler extends Thread {
         }
     }
 
+    // 뷰 템플릿 작업 수행함.
+    // html 파일 내에 <for></for> 태그가 있을 경우
+    // 하드 코딩한 작업을 수행함.
     private byte[] viewTemplate(File requestedFile, HandlerResponse handlerResponse) throws IOException {
         if(!requestedFile.toPath().toString().endsWith(".html")){
             log.info(requestedFile.toPath().toString());

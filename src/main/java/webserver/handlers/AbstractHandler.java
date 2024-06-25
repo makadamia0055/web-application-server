@@ -19,16 +19,14 @@ public abstract class AbstractHandler {
     HandlerResponse handlerResponse;
     HttpMethod httpMethod;
 
-
-    String staticResourcePath = Paths.get(System.getProperty("user.dir"), "target", "classes").toString();
-
     String mappedUrl;
 
-    AbstractHandler(){
+    AbstractHandler(HttpMethod httpMethod, String mappedUrl){
+        this.httpMethod = httpMethod;
+        this.mappedUrl = mappedUrl;
         this.handlerResponse = new HandlerResponse();
 
     }
-
 
     public boolean isMapping(HttpRequestClass httpRequestClass){
         if(httpRequestClass.getPath().equals(mappedUrl)&&httpRequestClass.getMethod().equals(this.httpMethod)){
@@ -50,10 +48,5 @@ public abstract class AbstractHandler {
         return handle(httpRequestClass);
     }
 
-//    private HandlerResponse setStaticPath(HttpRequestClass httpRequestClass) {
-//        HandlerResponse handlerResponse = handle(httpRequestClass);
-//        handlerResponse.setViewPath(this.staticResourcePath+handlerResponse.getViewPath());
-//        return handlerResponse;
-//    }
 
 }
